@@ -1,70 +1,76 @@
 import { useState } from "react";
-import axios from "../api/axios";
+import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/login.css";
 
 export default function Login() {
-
-  const [email,setEmail] = useState("");
-  const [password,setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
     try {
-
-      const res = await axios.post("/users/login",{
+      const res = await API.post("/users/login", {
         email,
-        password
+        password,
       });
 
-      // store JWT
-      localStorage.setItem("token", res.data);
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("role", res.data.role);
+      localStorage.setItem("username", res.data.name);
 
-      // navigate to dashboard
-      navigate("/dashboard");
-
-    } catch(error) {
-
-      alert("Login failed");
-
+      if (res.data.role === "ADMIN") {
+        navigate("/analytics");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Invalid email or password");
     }
-
   };
 
   return (
-
     <div className="login-container">
-
       <div className="login-card">
-
         <h2 className="login-title">Job Tracker Login</h2>
 
-        <input
-          className="login-input"
-          placeholder="Email"
-          value={email}
-          onChange={(e)=>setEmail(e.target.value)}
-        />
+        {error && <p className="login-error">{error}</p>}
 
-        <input
-          type="password"
-          className="login-input"
-          placeholder="Password"
-          value={password}
-          onChange={(e)=>setPassword(e.target.value)}
-        />
+        <form onSubmit={handleLogin}>
+          <input
+            className="login-input"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
-        <button
-          className="login-button"
-          onClick={handleLogin}
-        >
-          Login
-        </button>
+          <input
+            className="login-input"
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
 
+          <button className="login-button" type="submit">
+            Login
+          </button>
+        </form>
+        <p style={{ textAlign: "center", marginTop: "15px" }}>
+          Don't Have an account?
+          <a href="/register" style={{ color: "#2563eb" }}>
+            Register
+          </a>
+        </p>
       </div>
-
     </div>
   );
 }

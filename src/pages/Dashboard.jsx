@@ -1,19 +1,36 @@
 import { useEffect, useState } from "react";
 import API from "../api/axios";
 import "../styles/dashboard.css";
+import Sidebar from "../components/Sidebar";
+import AddJobModal from "../components/AddJobModal";
 
 function Dashboard() {
-
   const [jobs, setJobs] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
+  const [sort, setSort] = useState("");
+
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     fetchJobs();
-  }, []);
+  }, [page]);
 
   const fetchJobs = async () => {
     try {
-      const res = await API.get("/jobs?page=0&size=10");
-      setJobs(res.data.content);
+      let url = `/jobs?page=${page}&size=10`;
+
+      if (search) url += `&search=${search}`;
+      if (status) url += `&status=${status}`;
+      if (sort) url += `&sort=${sort}`;
+
+      const res = await API.get(url);
+
+      setJobs(res.data.content || []);
+      setTotalPages(res.data.totalPages || 1);
     } catch (error) {
       console.error("Error fetching jobs", error);
     }
@@ -35,61 +52,117 @@ function Dashboard() {
   };
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-layout">
+      <Sidebar />
 
-      <h1 className="dashboard-title">
-        My Job Applications
-      </h1>
+      <div className="dashboard-main">
+        <div className="dashboard-header">
+          <h1 className="dashboard-title">My Job Applications</h1>
 
-      <div className="dashboard-card">
+          <button className="add-job-button" onClick={() => setShowModal(true)}>
+            + Add Job
+          </button>
+        </div>
 
-        <table className="job-table">
+        <div className="dashboard-controls">
+          <input
+            className="search-input"
+            placeholder="Search company..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-          <thead>
-            <tr>
-              <th>Company</th>
-              <th>Position</th>
-              <th>Status</th>
-              <th>Created</th>
-            </tr>
-          </thead>
+          <select
+            className="filter-select"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+          >
+            <option value="">All Status</option>
+            <option value="APPLIED">Applied</option>
+            <option value="INTERVIEW">Interview</option>
+            <option value="OFFER">Offer</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
 
-          <tbody>
+          <select
+            className="filter-select"
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+          >
+            <option value="">Sort</option>
+            <option value="companyName,asc">Company A-Z</option>
+            <option value="companyName,desc">Company Z-A</option>
+            <option value="createdAt,desc">Newest</option>
+            <option value="createdAt,asc">Oldest</option>
+          </select>
 
-            {jobs.length === 0 ? (
+          <button className="apply-button" onClick={fetchJobs}>
+            Apply Filters
+          </button>
+        </div>
+
+        <div className="dashboard-card">
+          <table className="job-table">
+            <thead>
               <tr>
-                <td colSpan="4" className="empty-row">
-                  No job applications found
-                </td>
+                <th>Company</th>
+                <th>Position</th>
+                <th>Status</th>
+                <th>Created</th>
               </tr>
-            ) : (
-              jobs.map((job) => (
-                <tr key={job.id}>
+            </thead>
 
-                  <td>{job.companyName}</td>
-
-                  <td>{job.position}</td>
-
-                  <td>
-                    <span className={getStatusClass(job.status)}>
-                      {job.status}
-                    </span>
+            <tbody>
+              {jobs.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="empty-row">
+                    No job applications found
                   </td>
-
-                  <td>
-                    {new Date(job.createdAt).toLocaleDateString()}
-                  </td>
-
                 </tr>
-              ))
-            )}
+              ) : (
+                jobs.map((job) => (
+                  <tr key={job.id}>
+                    <td>{job.companyName}</td>
+                    <td>{job.position}</td>
 
-          </tbody>
+                    <td>
+                      <span className={getStatusClass(job.status)}>
+                        {job.status}
+                      </span>
+                    </td>
 
-        </table>
+                    <td>{new Date(job.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
+        <div className="pagination">
+          <button disabled={page === 0} onClick={() => setPage(page - 1)}>
+            Prev
+          </button>
+
+          <span>
+            Page {page + 1} of {totalPages}
+          </span>
+
+          <button
+            disabled={page >= totalPages - 1}
+            onClick={() => setPage(page + 1)}
+          >
+            Next
+          </button>
+        </div>
       </div>
 
+      {showModal && (
+        <AddJobModal
+          closeModal={() => setShowModal(false)}
+          refreshJobs={fetchJobs}
+        />
+      )}
     </div>
   );
 }
