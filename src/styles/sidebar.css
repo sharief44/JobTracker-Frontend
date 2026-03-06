@@ -1,8 +1,9 @@
 .sidebar {
   width: 240px;
+  height: 100vh;
   background: #0f172a;
   color: white;
-  height: 100vh;
+
   position: fixed;
   left: 0;
   top: 0;
@@ -12,7 +13,7 @@
   justify-content: space-between;
 }
 
-/* title */
+/* ================= TITLE ================= */
 
 .sidebar-title {
   font-size: 22px;
@@ -21,7 +22,7 @@
   border-bottom: 1px solid #1e293b;
 }
 
-/* user section */
+/* ================= USER ================= */
 
 .sidebar-user {
   padding: 15px 25px;
@@ -30,6 +31,7 @@
 
 .user-name {
   font-weight: 600;
+  text-transform: capitalize;
 }
 
 .user-role {
@@ -37,7 +39,7 @@
   color: #94a3b8;
 }
 
-/* menu */
+/* ================= MENU ================= */
 
 .sidebar-menu {
   list-style: none;
@@ -59,7 +61,7 @@
   background: #1e293b;
 }
 
-/* logout */
+/* ================= LOGOUT ================= */
 
 .sidebar-logout {
   padding: 20px;
@@ -73,6 +75,7 @@
   border-radius: 6px;
   color: white;
   cursor: pointer;
+  font-weight: 500;
 }
 
 .logout-button:hover {

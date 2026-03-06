@@ -36,6 +36,16 @@ function Dashboard() {
     }
   };
 
+  const deleteJob = async (id) => {
+    try {
+      await API.delete(`/jobs/${id}`);
+
+      fetchJobs();
+    } catch (error) {
+      console.error("Error deleting job", error);
+    }
+  };
+
   const getStatusClass = (status) => {
     switch (status) {
       case "APPLIED":
@@ -64,6 +74,7 @@ function Dashboard() {
           </button>
         </div>
 
+        {/* Filters */}
         <div className="dashboard-controls">
           <input
             className="search-input"
@@ -101,6 +112,7 @@ function Dashboard() {
           </button>
         </div>
 
+        {/* Job Table */}
         <div className="dashboard-card">
           <table className="job-table">
             <thead>
@@ -109,13 +121,14 @@ function Dashboard() {
                 <th>Position</th>
                 <th>Status</th>
                 <th>Created</th>
+                <th>Actions</th>
               </tr>
             </thead>
 
             <tbody>
               {jobs.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="empty-row">
+                  <td colSpan="5" className="empty-row">
                     No job applications found
                   </td>
                 </tr>
@@ -123,6 +136,7 @@ function Dashboard() {
                 jobs.map((job) => (
                   <tr key={job.id}>
                     <td>{job.companyName}</td>
+
                     <td>{job.position}</td>
 
                     <td>
@@ -131,7 +145,20 @@ function Dashboard() {
                       </span>
                     </td>
 
-                    <td>{new Date(job.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      {job.createdAt
+                        ? new Date(job.createdAt).toLocaleDateString()
+                        : "-"}
+                    </td>
+
+                    <td>
+                      <button
+                        className="delete-btn"
+                        onClick={() => deleteJob(job.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
@@ -139,6 +166,7 @@ function Dashboard() {
           </table>
         </div>
 
+        {/* Pagination */}
         <div className="pagination">
           <button disabled={page === 0} onClick={() => setPage(page - 1)}>
             Prev

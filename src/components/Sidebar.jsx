@@ -1,16 +1,31 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import API from "../api/axios";
 import "../styles/sidebar.css";
 
 function Sidebar() {
   const navigate = useNavigate();
 
-  const username = localStorage.getItem("name");
+  const [username, setUsername] = useState("");
   const role = localStorage.getItem("role");
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      const res = await API.get("/users/me");
+
+      setUsername(res.data.name); // important
+    } catch (error) {
+      console.error("Error fetching user", error);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
-    localStorage.removeItem("name");
 
     navigate("/");
   };
@@ -21,9 +36,8 @@ function Sidebar() {
       <div>
         <div className="sidebar-title">JobTracker</div>
 
-        {/* User info */}
         <div className="sidebar-user">
-          <div className="user-name">{name}</div>
+          <div className="user-name">{username}</div>
           <div className="user-role">{role}</div>
         </div>
 
@@ -44,7 +58,7 @@ function Sidebar() {
         </ul>
       </div>
 
-      {/* Logout bottom */}
+      {/* Logout */}
       <div className="sidebar-logout">
         <button className="logout-button" onClick={handleLogout}>
           Logout
