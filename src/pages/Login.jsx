@@ -2,6 +2,7 @@ import { useState } from "react";
 import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/login.css";
+import { Link } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -36,6 +37,7 @@ export default function Login() {
 
   return (
     <div className="login-container">
+      <div class="blur-circle"></div>
       <div className="login-card">
         <h2 className="login-title">Job Tracker Login</h2>
 
@@ -64,11 +66,8 @@ export default function Login() {
             Login
           </button>
         </form>
-        <p style={{ textAlign: "center", marginTop: "15px" }}>
-          Don't Have an account?
-          <a href="/register" style={{ color: "#2563eb" }}>
-            Register
-          </a>
+        <p className="login-footer">
+          Don't Have an account? <Link to="/register">Register</Link>
         </p>
       </div>
     </div>

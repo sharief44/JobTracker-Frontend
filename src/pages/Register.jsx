@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "../api/axios";
 import "../styles/login.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -11,19 +11,25 @@ export default function Register() {
   const navigate = useNavigate();
 
   const handleRegister = async () => {
-    await axios.post("/users/register", {
-      name,
-      email,
-      password,
-    });
+    try {
+      await axios.post("/users/register", {
+        name,
+        email,
+        password,
+      });
 
-    alert("User registered successfully");
+      alert("User registered successfully");
 
-    navigate("/");
+      navigate("/");
+    } catch (error) {
+      alert("Registration failed");
+    }
   };
 
   return (
     <div className="login-container">
+      <div className="blur-circle"></div>
+
       <div className="login-card">
         <h2 className="login-title">Create Account</h2>
 
@@ -52,11 +58,9 @@ export default function Register() {
         <button className="login-button" onClick={handleRegister}>
           Register
         </button>
-        <p style={{ textAlign: "center", marginTop: "15px" }}>
-          Have an account?
-          <a href="/" style={{ color: "#2563eb" }}>
-            Login
-          </a>
+
+        <p className="login-footer">
+          Have an account? <Link to="/">Login</Link>
         </p>
       </div>
     </div>
